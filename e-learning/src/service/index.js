@@ -11,16 +11,17 @@ async function registerService(formData){
 }
  export async function loginService(formData){
   try {
-    const data  = await axiosInstance.post('/auth/login', formData);
-    if (data.data.accessToken) {
-    
+    const response = await axiosInstance.post('/auth/login', formData);
+    const { data } = response;
+    if (data.success && data.data?.accessToken) {
+      // Store token without JSON.stringify
       sessionStorage.setItem('accessToken', data.data.accessToken);
-      
+      return data;
     }
-    return data;
+    throw new Error(data.message || 'Login failed');
   } catch (error) {
     console.error('Login error:', error.response?.data?.message || error.message);
-    throw new Error(error.response?.data?.message || 'Login failed');
+    throw error;
   }
 }
  export async function checkAuthService(){

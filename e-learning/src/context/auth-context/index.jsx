@@ -1,7 +1,7 @@
 
 import { initialSignInFormData, initialSignUpFormData } from "@/config";
 import registerService, { checkAuthService, loginService } from "@/service";
-import { createContext, use, useEffect, useState } from "react";
+import { createContext,  useEffect, useState } from "react";
 
 export const AuthContext = createContext(null);
 
@@ -38,6 +38,8 @@ export default function AuthProvider({ children }) {
           authenticate: true,
           user: data.data.user,
         });
+          // Clear form data after successful login
+      setSignInFormData(initialSignInFormData);
       }else{
         setAuth({
           authenticate: false,
@@ -57,20 +59,38 @@ export default function AuthProvider({ children }) {
   }
 
   // check auth user
-  async function checkAuthUser(){
-    const data = await checkAuthService();
-    if(data.success){
-      setAuth({
-        authenticate: true,
-        user: data.data.user,
-      });
-    }else{
-      setAuth({
-        authenticate: false,
-        user: null,
-      });
+  async function checkAuthUser() {
+    try {
+        const accessToken = sessionStorage.getItem('accessToken');
+        if (!accessToken) {
+            setAuth({
+                authenticate: false,
+                user: null,
+            });
+            return;
+        }
+        const data = await checkAuthService();
+        if (data.success) {
+            setAuth({
+                authenticate: true,
+                user: data.data.user,
+            });
+        } else {
+            setAuth({
+                authenticate: false,
+                user: null,
+            });
+            sessionStorage.removeItem('accessToken');
+        }
+    } catch (error) {
+        console.error('Auth check failed:', error);
+        setAuth({
+            authenticate: false,
+            user: null,
+        });
+        sessionStorage.removeItem('accessToken');
     }
-  }
+}
 
   useEffect(() => {
     checkAuthUser();
@@ -83,7 +103,8 @@ export default function AuthProvider({ children }) {
         signUpFormDat,
         setSignUpFormData,
         handleregisterUser,
-        handleLoginUser
+        handleLoginUser,
+        auth,
       }}
     >
       {children}
