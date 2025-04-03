@@ -23,7 +23,7 @@ async function registerService(formData){
     throw new Error(error.response?.data?.message || 'Login failed');
   }
 }
- export async function checkAuth(){
+ export async function checkAuthService(){
     const {data} = await axiosInstance.get('/auth/check-auth')
     return data  
 }
