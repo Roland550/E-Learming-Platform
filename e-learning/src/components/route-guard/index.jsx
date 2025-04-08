@@ -1,21 +1,24 @@
-
-
-import { useLocation , Navigate} from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { Fragment } from "react";
+
 function RouteGuard({ authenticate, user, element }) {
   const location = useLocation();
-  
+
   console.log(authenticate, user, "useruser");
-  
-  if (!authenticate && !location.pathname.includes("/auth")) {
+
+  if (!authenticate) {
+    // Render the element directly if the user is on the /auth route
+    if (location.pathname === "/auth") {
+      return <Fragment>{element}</Fragment>;
+    }
+    // Redirect to /auth for all other routes
     return <Navigate to="/auth" replace />;
   }
 
   // If authenticated and trying to access auth page
   if (authenticate && location.pathname === "/auth") {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/" />;
   }
- 
 
   if (
     authenticate &&
@@ -26,18 +29,14 @@ function RouteGuard({ authenticate, user, element }) {
     return <Navigate to="/home" />;
   }
 
-   // For instructor routes
-   if (
+  // For instructor routes
+  if (
     authenticate &&
     user.role === "instructor" &&
     !location.pathname.includes("instructor")
   ) {
     return <Navigate to="/instructor" />;
   }
-   
-
- 
-  
 
   return <Fragment>{element}</Fragment>;
 }
