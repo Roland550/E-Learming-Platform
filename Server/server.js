@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 const mongoURI = process.env.MONGODB_URL;
 
 const authRoutes = require('./routes/auth-routes/index')
+const mediaRoutes = require('./routes/instructor-routes/media-routes')
 
 app.use(
   cors({
@@ -31,6 +32,7 @@ mongoose
 
 //routes configuration
 app.use('/auth', authRoutes)
+app.use('/media', mediaRoutes)
 
 //handling global error
 app.use((err, req, res, next) => {
