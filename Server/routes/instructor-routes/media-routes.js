@@ -4,6 +4,7 @@ const multer = require('multer');
 const { uploadMediaToCloudinary, deleteMediaFromCloudinary } = require('../../helper/cloudinary');
 
 const router = express.Router();
+
 const upload = multer({ dest: 'uploads/' }); // Temporary storage for uploaded files
 
 router.post('/upload', upload.single('file'), async (req, res) => {
