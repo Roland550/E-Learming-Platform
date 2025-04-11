@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import VideoPlayer from "@/components/video-player";
 import { courseLandingInitialFormData } from "@/config";
 import { InstructorContext } from "@/context/instructor-context";
 import { mediaUploadService } from "@/service";
@@ -18,7 +19,6 @@ function CourseCurriculum() {
     mediaUploadProgressPercentage,
     setMediaUploadProgressPercentage,
   } = useContext(InstructorContext);
-
 
   const handleNewLecture = () => {
     setCourseCurriculumFormData([
@@ -49,7 +49,7 @@ function CourseCurriculum() {
     setCourseCurriculumFormData(copyCourseCurriculumFormData);
   };
 
-  const handleSingleLectureUpload = async(event, currentIndex) => {
+  const handleSingleLectureUpload = async (event, currentIndex) => {
     const selecTedFile = event.target.files[0];
     if (selecTedFile) {
       const videoFormData = new FormData();
@@ -57,21 +57,23 @@ function CourseCurriculum() {
 
       try {
         setMediaUploadProgress(true);
-        const response = await mediaUploadService(videoFormData, setMediaUploadProgressPercentage);
+        const response = await mediaUploadService(
+          videoFormData,
+          setMediaUploadProgressPercentage
+        );
         console.log(response);
-        if(response.success) {
+        if (response.success) {
           let copyCourseCurriculumFormData = [...courseCurriculumFormData];
           copyCourseCurriculumFormData[currentIndex] = {
             ...copyCourseCurriculumFormData[currentIndex],
             videoUrl: response.data.url,
-            public_id: response.data.public_id
+            public_id: response.data.public_id,
           };
           setCourseCurriculumFormData(copyCourseCurriculumFormData);
           setMediaUploadProgress(false);
         }
       } catch (error) {
         console.error("Error uploading video:", error);
-        
       }
     }
   };
@@ -84,13 +86,12 @@ function CourseCurriculum() {
       </CardHeader>
       <CardContent>
         <Button onClick={handleNewLecture}>Add lecture</Button>
-        {
-          mediaUploadProgress ?
+        {mediaUploadProgress ? (
           <MediaProgressbar
             isMediaUploading={mediaUploadProgress}
             progress={mediaUploadProgressPercentage}
-           />: null
-        }
+          />
+        ) : null}
         <div className="mt-4 space-y-4">
           {Array.isArray(courseCurriculumFormData) &&
             courseCurriculumFormData.map((curriculumItem, index) => (
@@ -120,14 +121,25 @@ function CourseCurriculum() {
                 </div>
                 <div className=" mt-6">
                   {/* <h3 className="font-semibold">Video URL</h3> */}
-                  <Input
-                    type="file"
-                    accept="video/*"
-                    onChange={(event) =>
-                      handleSingleLectureUpload(event, index)
-                    }
-                    className="mb-4"
-                  />
+                  {courseCurriculumFormData[index]?.videoUrl ? (
+                    <div className="flex gap-3">
+                      <VideoPlayer
+                        url={courseCurriculumFormData[index]?.videoUrl}
+                        
+                      />
+                      <Button>Replace Video</Button>
+                      <Button className="bg-red-900">Delete Lecture</Button>
+                    </div>
+                  ) : (
+                    <Input
+                      type="file"
+                      accept="video/*"
+                      onChange={(event) =>
+                        handleSingleLectureUpload(event, index)
+                      }
+                      className="mb-4"
+                    />
+                  )}
                 </div>
               </div>
             ))}
