@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import VideoPlayer from "@/components/video-player";
+import VideoPlayer from "@/components/video-player/index";
 import { courseLandingInitialFormData } from "@/config";
 import { InstructorContext } from "@/context/instructor-context";
-import { mediaUploadService } from "@/service";
+import { mediaUploadDeleteService, mediaUploadService } from "@/service";
 import { Label } from "@radix-ui/react-label";
 import { useContext } from "react";
 
@@ -77,6 +77,36 @@ function CourseCurriculum() {
       }
     }
   };
+
+  const isCourseCurriculumFormValid = () => {
+    return courseCurriculumFormData.every((item) => {
+      return (
+        item &&
+        typeof item == "object" &&
+        item.title &&
+        item.title.trim() !== "" &&
+        item.videoUrl &&
+        item.videoUrl.trim() !== ""
+      );
+    });
+  };
+
+  // Function to handle replacing the video URL
+  async function handleReplaceVideo(currentIndex) {
+    let copyCourseCurriculumFormData = [...courseCurriculumFormData];
+    const getCurrentVideoPublicId = copyCourseCurriculumFormData[currentIndex].public_id;
+    const deleteResponse = await mediaUploadDeleteService(getCurrentVideoPublicId);
+    if(deleteResponse?.success) {
+      copyCourseCurriculumFormData[currentIndex] = {
+        ...copyCourseCurriculumFormData[currentIndex],
+        videoUrl: "",
+        public_id: "",
+      };
+      setCourseCurriculumFormData(copyCourseCurriculumFormData);
+    
+  }
+}
+
   console.log(courseCurriculumFormData);
 
   return (
@@ -85,7 +115,7 @@ function CourseCurriculum() {
         <CardTitle>Create Course Curriculum</CardTitle>
       </CardHeader>
       <CardContent>
-        <Button onClick={handleNewLecture}>Add lecture</Button>
+        <Button disabled={!isCourseCurriculumFormValid() || mediaUploadProgress} onClick={handleNewLecture}>Add lecture</Button>
         {mediaUploadProgress ? (
           <MediaProgressbar
             isMediaUploading={mediaUploadProgress}
@@ -125,9 +155,8 @@ function CourseCurriculum() {
                     <div className="flex gap-3">
                       <VideoPlayer
                         url={courseCurriculumFormData[index]?.videoUrl}
-                        
                       />
-                      <Button>Replace Video</Button>
+                      <Button onClick={() => handleReplaceVideo(index)}>Replace Video</Button>
                       <Button className="bg-red-900">Delete Lecture</Button>
                     </div>
                   ) : (

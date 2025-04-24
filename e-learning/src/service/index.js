@@ -39,4 +39,9 @@ async function registerService(formData){
     return data  
 }
 
+export async function mediaUploadDeleteService(id){
+  const {data} = await axiosInstance.delete(`/media/delete/${id}`)
+  return data  
+}
+
 export default registerService;
