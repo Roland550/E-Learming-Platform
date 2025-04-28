@@ -43,5 +43,23 @@ export async function mediaUploadDeleteService(id){
   const {data} = await axiosInstance.delete(`/media/delete/${id}`)
   return data  
 }
+export async function fetchInstructorCourseListService(){
+  const {data} = await axiosInstance.get('/instructor/course/get')
+  return data
+}
+export async function fetchInstructorCourseDetailService(id){
+  const {data} = await axiosInstance.get(`/instructor/course/detail/${id}`)
+  return data
+  
+}
+export async function updateCourseByIdService(id){
+  const {data} = await axiosInstance.get(`/instructor/course/update/${id}`)
+  return data
+  
+}
+export async function addNewCourseService(formData){
+  const {data} = await axiosInstance.post('/instructor/course/add', formData)
+  return data 
+}
 
 export default registerService;

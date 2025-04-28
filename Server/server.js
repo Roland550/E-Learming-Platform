@@ -12,6 +12,8 @@ const mongoURI = process.env.MONGODB_URL;
 
 const authRoutes = require('./routes/auth-routes/index')
 const mediaRoutes = require('./routes/instructor-routes/media-routes')
+const instructorCourseRoutes = require('./routes/instructor-routes/course-routes')
+
 
 app.use(
   cors({
@@ -33,6 +35,7 @@ mongoose
 //routes configuration
 app.use('/auth', authRoutes)
 app.use('/media', mediaRoutes)
+app.use('/instructor/course', instructorCourseRoutes)
 
 //handling global error
 app.use((err, req, res, next) => {

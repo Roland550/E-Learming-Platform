@@ -50,7 +50,7 @@ function FormControls({ formControls = [], formData, setFormData }) {
               <SelectValue placeholder={getControlItem.label} />
             </SelectTrigger>
             <SelectContent>
-              {getControlItem.options && getControlItem.options.lenght > 0
+              {getControlItem.options && getControlItem.options.length > 0
                 ? getControlItem.options.map((option) => (
                     <SelectItem key={option.id} value={option.id}>
                       {option.label}
