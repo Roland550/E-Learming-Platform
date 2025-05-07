@@ -8,8 +8,8 @@ import React, { useContext } from "react";
 
 function CourseSettings() {
   const {
-    coursLandingFormData,
-    setCoursLandingFormData,
+    courseLandingFormData,
+    setCourseLandingFormData,
     mediaUploadProgress,
     setMediaUploadProgress,
     mediaUploadProgressPercentage,
@@ -27,8 +27,8 @@ function CourseSettings() {
         const response = await mediaUploadService(imageFormData, setMediaUploadProgressPercentage);
         console.log("resonse", response);
         if (response.success) {
-          setCoursLandingFormData({
-            ...coursLandingFormData,
+          setCourseLandingFormData({
+            ...courseLandingFormData,
             image: response.data.url,
           });
           setMediaUploadProgress(false);  
@@ -38,6 +38,8 @@ function CourseSettings() {
       }
     }
   };
+
+  
   return (
     <Card>
       <CardHeader>
@@ -53,18 +55,20 @@ function CourseSettings() {
         }
       </div>
       <CardContent>
-        {coursLandingFormData.image ? (
-          <img src={coursLandingFormData.image} alt="Course Image" />
+        {courseLandingFormData.image ? (
+          <img src={courseLandingFormData.image} alt="Course Image" />
         ) : (
           <div className="flex flex-col gap-3">
-            <Label>Upload Course Image</Label>
+            <Label htmlFor="course-image">Upload Course Image</Label>
             <Input
+              id="course-image"
               type="file"
               accept="image/*"
               onChange={handleImageUploadChange}
             />
           </div>
         )}
+        
       </CardContent>
     </Card>
   );

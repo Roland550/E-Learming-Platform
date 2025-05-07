@@ -48,12 +48,12 @@ export async function fetchInstructorCourseListService(){
   return data
 }
 export async function fetchInstructorCourseDetailService(id){
-  const {data} = await axiosInstance.get(`/instructor/course/detail/${id}`)
+  const {data} = await axiosInstance.get(`/instructor/course//get/details/${id}`)
   return data
   
 }
-export async function updateCourseByIdService(id){
-  const {data} = await axiosInstance.get(`/instructor/course/update/${id}`)
+export async function updateCourseByIdService(id, formData){
+  const {data} = await axiosInstance.get(`/instructor/course/update/${id}`, formData)
   return data
   
 }
