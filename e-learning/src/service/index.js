@@ -62,4 +62,13 @@ export async function addNewCourseService(formData){
   return data 
 }
 
+export async function mediaBulkUploadService(formData, onProgressCallback){
+  const {data} = await axiosInstance.post('/media/bulk-upload', formData,
+    {onUploadProgress: (progressEvent) => {
+      const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+      onProgressCallback(percentCompleted);
+    }}
+   )
+  return data  
+}
 export default registerService;

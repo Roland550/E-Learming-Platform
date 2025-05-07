@@ -6,9 +6,10 @@ import { Switch } from "@/components/ui/switch";
 import VideoPlayer from "@/components/video-player/index";
 import { courseLandingInitialFormData } from "@/config";
 import { InstructorContext } from "@/context/instructor-context";
-import { mediaUploadDeleteService, mediaUploadService } from "@/service";
+import { mediaBulkUploadService, mediaUploadDeleteService, mediaUploadService } from "@/service";
 import { Label } from "@radix-ui/react-label";
-import { useContext } from "react";
+import { Upload } from "lucide-react";
+import { useContext, useRef } from "react";
 
 function CourseCurriculum() {
   const {
@@ -78,6 +79,8 @@ function CourseCurriculum() {
     }
   };
 
+  const bulkLectureUploadRef = useRef(null);
+  
   const isCourseCurriculumFormValid = () => {
     return courseCurriculumFormData.every((item) => {
       return (
@@ -94,28 +97,112 @@ function CourseCurriculum() {
   // Function to handle replacing the video URL
   async function handleReplaceVideo(currentIndex) {
     let copyCourseCurriculumFormData = [...courseCurriculumFormData];
-    const getCurrentVideoPublicId = copyCourseCurriculumFormData[currentIndex].public_id;
-    const deleteResponse = await mediaUploadDeleteService(getCurrentVideoPublicId);
-    if(deleteResponse?.success) {
+    const getCurrentVideoPublicId =
+      copyCourseCurriculumFormData[currentIndex].public_id;
+    const deleteResponse = await mediaUploadDeleteService(
+      getCurrentVideoPublicId
+    );
+    if (deleteResponse?.success) {
       copyCourseCurriculumFormData[currentIndex] = {
         ...copyCourseCurriculumFormData[currentIndex],
         videoUrl: "",
         public_id: "",
       };
       setCourseCurriculumFormData(copyCourseCurriculumFormData);
+    }
+  }
+
+
+  function areAllCourseCurriculumFormDataObjectsEmpty(arr){
+    return arr.every((obj) => {
+      return Object.entries(obj).every(([key, value])=>{
+        if(typeof value == 'boolean'){
+          return true
+        } 
+        return value === '';
+
+      });
+    });
+  }
+  function handleOpenBulkUpload (){
+    bulkLectureUploadRef.current?.click();
+  }
+
+  async function handleMediaBulkUpload(event){
+    const selectedFiles = Array.from(event.target.files);
+    const bulkFormData = new FormData();
+    selectedFiles.forEach((fileItem) => {
+      bulkFormData.append("files", fileItem);
+    });
+    try {
+      setMediaUploadProgress(true);
+      const response = await mediaBulkUploadService(
+        bulkFormData,
+        setMediaUploadProgressPercentage
+      );
+      console.log(response, "Bresponse");
+      if(response?.success){
+        let copyCourseCurriculumFormData = areAllCourseCurriculumFormDataObjectsEmpty(courseCurriculumFormData) 
+
+        ?[] : [...courseCurriculumFormData]
+
+        copyCourseCurriculumFormData=[
+          ...copyCourseCurriculumFormData,
+          ...response.data.map((item, index) => ({
+            videoUrl: item.url,
+            public_id: item.public_id,
+            title: `Lecture ${copyCourseCurriculumFormData.length + ( index + 1) }`,
+            freePreview: false
+          }))
+        ]
+        
+        setCourseCurriculumFormData(copyCourseCurriculumFormData);
+        setMediaUploadProgress(false);
+      }
+      
+    } catch (error) {
+      console.error("Error uploading video:", error);
+    }
+
+    
     
   }
-}
 
   console.log(courseCurriculumFormData);
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex  justify-between flex-row">
         <CardTitle>Create Course Curriculum</CardTitle>
+        <div>
+          <Input
+            type="file"
+            ref={bulkLectureUploadRef}
+            accept="video/*"
+            multiple
+            className="hidden"
+            id="bulk-media-upload"
+            onChange={handleMediaBulkUpload}
+          />
+          <Button
+            as="label"
+            htmlFor="bulk-media-upload"
+            variant="outline"
+            className="cursor-pointer"
+            onClick={handleOpenBulkUpload}
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Bulk Upload
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
-        <Button disabled={!isCourseCurriculumFormValid() || mediaUploadProgress} onClick={handleNewLecture}>Add lecture</Button>
+        <Button
+          disabled={!isCourseCurriculumFormValid() || mediaUploadProgress}
+          onClick={handleNewLecture}
+        >
+          Add lecture
+        </Button>
         {mediaUploadProgress ? (
           <MediaProgressbar
             isMediaUploading={mediaUploadProgress}
@@ -156,7 +243,9 @@ function CourseCurriculum() {
                       <VideoPlayer
                         url={courseCurriculumFormData[index]?.videoUrl}
                       />
-                      <Button onClick={() => handleReplaceVideo(index)}>Replace Video</Button>
+                      <Button onClick={() => handleReplaceVideo(index)}>
+                        Replace Video
+                      </Button>
                       <Button className="bg-red-900">Delete Lecture</Button>
                     </div>
                   ) : (
