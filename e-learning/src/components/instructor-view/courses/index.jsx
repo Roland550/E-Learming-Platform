@@ -15,6 +15,8 @@ function InstructorCourses({listOfCourses}) {
   const navigate = useNavigate()
 
   const {
+    
+    
     setCurrentEditedCourseId,
     setCourseLandingFormData,
     setCourseCurriculumFormData,

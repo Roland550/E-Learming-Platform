@@ -13,6 +13,7 @@ import { InstructorContext } from "@/context/instructor-context";
 import {
   addNewCourseService,
   fetchInstructorCourseDetailService,
+  updateCourseByIdService,
 } from "@/service";
 import { TabsContent } from "@radix-ui/react-tabs";
 import React, { useContext, useEffect } from "react";
@@ -74,7 +75,8 @@ function AddNewCoursePage() {
       curriculum: courseCurriculumFormData,
       isPublished: Boolean,
     };
-    const response = await addNewCourseService(CourseFinalFormData);
+    const response = currentEditedCourseId !== null ? await updateCourseByIdService(currentEditedCourseId, CourseFinalFormData) :
+    await addNewCourseService(CourseFinalFormData);
     if (response?.success) {
       if (typeof setCourseLandingFormData === "function") {
         setCourseLandingFormData(courseLandingInitialFormData);
@@ -87,6 +89,7 @@ function AddNewCoursePage() {
         console.error("setCourseCurriculumFormData is not a function");
       }
       navigate(-1);
+      setCurrentEditedCourseId(null);
     }
   }
 
@@ -140,7 +143,7 @@ function AddNewCoursePage() {
       <div className="flex justify-between">
         <h1 className="text-3xl font-extrabold mb-5">Create a new course</h1>
         <Button
-          disabled={!validateFormData()}
+          disabled={validateFormData()}
           className="text-sm tracking-wider font-bold px-8"
           onClick={handleCreateCourse}
         >
