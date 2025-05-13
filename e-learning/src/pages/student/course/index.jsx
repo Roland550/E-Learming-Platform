@@ -1,0 +1,141 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
+import { filterOptions, sortOptions } from "@/config";
+import { StudentContex } from "@/context/student-context";
+import { fetchStudentViewCourseListService } from "@/service";
+import { ArrowBigDownIcon, ArrowUpDownIcon, CheckCheck } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
+
+function StudentViewCoursePage() {
+  const [sort, setSort] = useState("");
+  const { studentViewCourseList, setStudentViewCourseList } =
+    useContext(StudentContex);
+
+  async function fetchAllStudentViewCourse() {
+    const response = await fetchStudentViewCourseListService();
+
+    if (response?.success) setStudentViewCourseList(response?.data);
+  }
+
+  useEffect(() => {
+    fetchAllStudentViewCourse();
+  }, []);
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-4">Student View</h1>
+      <div className="flex flex-col md:flex-row gap-4">
+        <aside className=" w-full md:w-64 space-y-4">
+          <div className=" space-y-4">
+            {/* filters */}
+            {Object.keys(filterOptions).map((filterKey) => (
+              <div key={filterKey} className="p-4 space-y-4">
+                <h3 className="mb-3 font-bold">{filterKey.toUpperCase()}</h3>
+                <div className="grid gap-2 mt-2">
+                  {filterOptions[filterKey].map((option) => (
+                    <Label className="flex items-center gap-2 cursor-pointer font-medium">
+                      <Checkbox
+                        checked={false}
+                        onCheckedChange={() =>
+                          handleFilterOnChange(filterKey, option.id)
+                        }
+                      />
+                      {option.label}
+                    </Label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        <main className="flex-1">
+          <div className="flex justify-end items-center mb-4 gap-5 p-5">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <ArrowUpDownIcon className=" h-4 w-4 " />
+                  <span className="text-[16px] font-medium">Sort By</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[180px]">
+                <DropdownMenuRadioGroup
+                  value={sort}
+                  onValueChange={(value) => {
+                    setSort(value);
+                  }}
+                >
+                  {sortOptions.map((sortItem) => (
+                    <DropdownMenuRadioItem
+                      key={sortItem.id}
+                      value={sortItem.id}
+                      className="capitalize"
+                    >
+                      {sortItem.label}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <span className="text-sm text-black font-bold">10 results</span>
+          </div>
+
+          <div className="space-y-4">
+            {studentViewCourseList && studentViewCourseList.length > 0 ? (
+              studentViewCourseList.map((courseItem) => (
+                <Card
+                  key={courseItem._id}
+                  className="border rounded-lg overflow-hidden shadow cursor-pointer"
+                >
+                  <CardContent className="flex gap-4 p-4">
+                    <div className="w-48 h-32 flex-shrink-0">
+                      <img
+                        src={courseItem?.image}
+                        alt={courseItem?.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="text-xl mb-2">
+                        {courseItem?.title}
+                      </CardTitle>
+                      <p className="text-sm text-gray-600 mb-1">
+                        {" "}
+                        Created By{" "}
+                        <span className="font-bold">
+                          {courseItem?.instrocturName}
+                        </span>
+                      </p>
+                      <p className="text-[18px] text-gray-600 mt-3 mb-2">{`${
+                        courseItem?.curriculum?.length
+                      } ${courseItem?.curriculum?.length <= 1 ? "Lecture" : "Lectures"} - ${courseItem?.level.toUpperCase()} Level`}</p>
+                      <p className="font-bold text-[16px]">
+                        ${courseItem?.pricing}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <h1>No course Found</h1>
+            )}
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default StudentViewCoursePage;

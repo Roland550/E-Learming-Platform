@@ -5,17 +5,16 @@ import { courseCategories } from "@/config";
 import { useContext, useEffect } from "react";
 import { StudentContex } from "@/context/student-context";
 import { fetchStudentViewCourseListService } from "@/service";
+
 // import { useContext } from "react";
 
 
 
 
 function StudentHomePage() {
-//  const {resetCredential} = useContext(AuthContext)
-  // const handleLogout = () => {
-  //   resetCredential();
-  //   sessionStorage.clear();
-  // };
+
+
+  
 
   const {studentViewCourseList, setStudentViewCourseList} = useContext(StudentContex)
 

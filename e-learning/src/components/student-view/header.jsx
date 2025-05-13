@@ -1,9 +1,17 @@
 import { GraduationCap, TvMinimalPlay } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
+import { useContext } from "react";
+import { AuthContext } from "@/context/auth-context";
 
 
 function StudentViewCommonHeader(){
+    const navigate = useNavigate()
+     const {resetCredential} = useContext(AuthContext)
+  const handleLogout = () => {
+    resetCredential();
+    sessionStorage.clear();
+  }; 
     return (
        <header className="flex items-center justify-between p-4 border-b relative">
          <div className="flex items-center spacex-4">
@@ -13,7 +21,8 @@ function StudentViewCommonHeader(){
             </Link>
 
             <div className="flex items-center space-x-2">
-                <Button variant='ghost' className="text-[14px] md:text-[16px] font-medium">
+                <Button variant='ghost' className="text-[14px] md:text-[16px] font-medium cursor-pointer"
+                onClick={() => navigate("/course")}>
                     Explore Courses
                 </Button>
             </div>
@@ -26,7 +35,7 @@ function StudentViewCommonHeader(){
                     <span className="text-[14px] md:text-[16px] font-medium">My Courses</span>
                     <TvMinimalPlay className="w-8 h-8 cursor-pointer" />
                    </div>
-                   <Button>Sign Out</Button>
+                   <Button  className=" cursor-pointer" onClick={handleLogout}>Sign Out</Button>
                 </div>
             </div>
        </header>
