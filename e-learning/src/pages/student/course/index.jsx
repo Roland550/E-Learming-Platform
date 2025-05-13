@@ -37,6 +37,8 @@ function StudentViewCoursePage() {
   const { studentViewCourseList, setStudentViewCourseList } =
     useContext(StudentContex);
 
+
+
    function handleFilterOnChange(getSectionId, getCurrentOption) {
     let cpyFilters = { ...filters };
     const indexOfCurrentSection = Object.keys(cpyFilters).indexOf(getSectionId);
@@ -63,8 +65,12 @@ function StudentViewCoursePage() {
     console.log("filters", cpyFilters);
    } 
 
-  async function fetchAllStudentViewCourse() {
-    const response = await fetchStudentViewCourseListService();
+  async function fetchAllStudentViewCourse(filters, sort) {
+    const query = new URLSearchParams({
+      ...filters,
+      sortBy:sort
+    });
+    const response = await fetchStudentViewCourseListService(query);
 
     if (response?.success) setStudentViewCourseList(response?.data);
   }
@@ -75,8 +81,9 @@ function StudentViewCoursePage() {
   }, [filters]);
 
   useEffect(() => {
-    fetchAllStudentViewCourse();
-  }, []);
+    if(filters !== null && sort !== null)
+    fetchAllStudentViewCourse(filters, sort);
+  }, [filters, sort]);
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">Student View</h1>
