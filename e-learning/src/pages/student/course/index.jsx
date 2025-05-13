@@ -14,17 +14,65 @@ import { StudentContex } from "@/context/student-context";
 import { fetchStudentViewCourseListService } from "@/service";
 import { ArrowBigDownIcon, ArrowUpDownIcon, CheckCheck } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
+import {  useSearchParams } from "react-router-dom";
+
+function createSearchParamsHelper(filterParams) {
+  const queryParams = []
+
+  for (const [key, value] of Object.entries(filterParams)) {
+    if (Array.isArray(value) && value.length > 0) {
+      const paramValue = value.join(',');
+      queryParams.push(`${key}=${encodeURIComponent(paramValue)}`);
+    } 
+   
+  }
+   return queryParams.join('&');
+}
 
 function StudentViewCoursePage() {
-  const [sort, setSort] = useState("");
+  const [sort, setSort] = useState("price-lowtohigh");
+  const [filters, setFilters] = useState({});
+  const [searchParams, setSearchParams] = useSearchParams()
+
   const { studentViewCourseList, setStudentViewCourseList } =
     useContext(StudentContex);
+
+   function handleFilterOnChange(getSectionId, getCurrentOption) {
+    let cpyFilters = { ...filters };
+    const indexOfCurrentSection = Object.keys(cpyFilters).indexOf(getSectionId);
+    if (indexOfCurrentSection === -1) {
+     cpyFilters ={
+        ...cpyFilters,
+        [getSectionId]: [getCurrentOption.id],
+      
+     }
+     console.log("cpyFilters", cpyFilters);
+     
+    } else{
+      const indexOfCurrentOption = cpyFilters[getSectionId].indexOf(
+        getCurrentOption.id
+      );
+      if (indexOfCurrentOption === -1) {
+        cpyFilters[getSectionId].push(getCurrentOption.id);
+      } else {
+        cpyFilters[getSectionId].splice(indexOfCurrentOption, 1);
+      }
+    }
+    setFilters(cpyFilters);
+    sessionStorage.setItem("filters", JSON.stringify(cpyFilters));
+    console.log("filters", cpyFilters);
+   } 
 
   async function fetchAllStudentViewCourse() {
     const response = await fetchStudentViewCourseListService();
 
     if (response?.success) setStudentViewCourseList(response?.data);
   }
+
+  useEffect(() => {
+    const buildQueryStringForFilters = createSearchParamsHelper(filters);
+    setSearchParams(new URLSearchParams(buildQueryStringForFilters));
+  }, [filters]);
 
   useEffect(() => {
     fetchAllStudentViewCourse();
@@ -41,11 +89,17 @@ function StudentViewCoursePage() {
                 <h3 className="mb-3 font-bold">{filterKey.toUpperCase()}</h3>
                 <div className="grid gap-2 mt-2">
                   {filterOptions[filterKey].map((option) => (
-                    <Label className="flex items-center gap-2 cursor-pointer font-medium">
+                    <Label key={option.id} className="flex items-center gap-2 cursor-pointer font-medium">
                       <Checkbox
-                        checked={false}
+                        checked={
+                          filters &&
+                          Object.keys(filters).length > 0
+                          && filters[filterKey] &&
+                          filters[filterKey].indexOf(option.id) > -1
+                            
+                        }
                         onCheckedChange={() =>
-                          handleFilterOnChange(filterKey, option.id)
+                          handleFilterOnChange(filterKey, option)
                         }
                       />
                       {option.label}
