@@ -71,6 +71,8 @@ function AddNewCoursePage() {
       instrocturName: auth?.user?.userName,
       date: new Date(),
       ...courseLandingFormData,
+      language: courseLandingFormData?.primaryLanguage,
+      objective: courseLandingFormData?.courseObjective,
       students: [],
       curriculum: courseCurriculumFormData,
       isPublished: Boolean,

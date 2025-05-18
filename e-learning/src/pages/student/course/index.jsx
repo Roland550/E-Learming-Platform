@@ -9,12 +9,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { filterOptions, sortOptions } from "@/config";
 import { StudentContex } from "@/context/student-context";
 import { fetchStudentViewCourseListService } from "@/service";
 import { ArrowBigDownIcon, ArrowUpDownIcon, CheckCheck } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
-import {  useSearchParams } from "react-router-dom";
+import {  useNavigate, useSearchParams } from "react-router-dom";
 
 function createSearchParamsHelper(filterParams) {
   const queryParams = []
@@ -34,8 +35,10 @@ function StudentViewCoursePage() {
   const [filters, setFilters] = useState({});
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const { studentViewCourseList, setStudentViewCourseList } =
+  const { studentViewCourseList, setStudentViewCourseList,loadingState, setLoadingState } =
     useContext(StudentContex);
+
+    const navigate = useNavigate();
 
 
 
@@ -72,8 +75,27 @@ function StudentViewCoursePage() {
     });
     const response = await fetchStudentViewCourseListService(query);
 
-    if (response?.success) setStudentViewCourseList(response?.data);
+    if (response?.success) {
+      setStudentViewCourseList(response?.data);
+      setLoadingState(false);
+    }
   }
+
+  useEffect(() => {
+    setSort('price-lowtohigh');
+    setFilters(JSON.parse(sessionStorage.getItem("filters")) || {});
+    
+  }, []);
+  useEffect(() => {
+    return (
+      () => {
+        sessionStorage.removeItem("filters");
+       
+      }
+    )
+    
+  }, []);
+
 
   useEffect(() => {
     const buildQueryStringForFilters = createSearchParamsHelper(filters);
@@ -89,10 +111,10 @@ function StudentViewCoursePage() {
       <h1 className="text-3xl font-bold mb-4">Student View</h1>
       <div className="flex flex-col md:flex-row gap-4">
         <aside className=" w-full md:w-64 space-y-4">
-          <div className=" space-y-4">
+          <div className=" ">
             {/* filters */}
             {Object.keys(filterOptions).map((filterKey) => (
-              <div key={filterKey} className="p-4 space-y-4">
+              <div key={filterKey} className="p-4 border-b">
                 <h3 className="mb-3 font-bold">{filterKey.toUpperCase()}</h3>
                 <div className="grid gap-2 mt-2">
                   {filterOptions[filterKey].map((option) => (
@@ -150,15 +172,19 @@ function StudentViewCoursePage() {
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            <span className="text-sm text-black font-bold">10 results</span>
+            <span className="text-sm text-black font-bold">{studentViewCourseList && studentViewCourseList.length} results</span>
           </div>
 
           <div className="space-y-4">
+            
             {studentViewCourseList && studentViewCourseList.length > 0 ? (
               studentViewCourseList.map((courseItem) => (
                 <Card
                   key={courseItem._id}
                   className="border rounded-lg overflow-hidden shadow cursor-pointer"
+                  onClick={() => {
+                    navigate(`/course/details/${courseItem._id}`);
+                  }}
                 >
                   <CardContent className="flex gap-4 p-4">
                     <div className="w-48 h-32 flex-shrink-0">
@@ -190,7 +216,8 @@ function StudentViewCoursePage() {
                 </Card>
               ))
             ) : (
-              <h1>No course Found</h1>
+              loadingState ? <Skeleton />:
+              <h1 className="text-4xl font-extrabold">No course Found</h1>
             )}
           </div>
         </main>
