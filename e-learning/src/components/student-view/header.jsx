@@ -32,7 +32,7 @@ function StudentViewCommonHeader(){
          <div className="flex items-center space-x-4">
                 <div className="flex gap-4 items-center">
                    <div className="flex items-center gap-3">
-                    <span className="text-[14px] md:text-[16px] font-medium">My Courses</span>
+                    <span onClick={() => navigate("/student-courses")} className="text-[14px] md:text-[16px] font-medium cursor-pointer">My Courses</span>
                     <TvMinimalPlay className="w-8 h-8 cursor-pointer" />
                    </div>
                    <Button  className=" cursor-pointer" onClick={handleLogout}>Sign Out</Button>

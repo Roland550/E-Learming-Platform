@@ -11,8 +11,9 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import VideoPlayer from "@/components/video-player";
+import { AuthContext } from "@/context/auth-context";
 import { StudentContex } from "@/context/student-context";
-import { fetchStudentViewCourseDetailsService } from "@/service";
+import { createEnrollmentService, fetchStudentViewCourseDetailsService } from "@/service";
 
 import { CheckCircle, Globe, Lock, PlayCircle } from "lucide-react";
 
@@ -32,9 +33,12 @@ function StudentViewCourseDetails() {
   const [displayCurrentVideoPreview, setDisplayCurrentVideoPreview] =
     useState(null);
   const [showPreviewDislog, setShowPreviewDislog] = useState(false);
-
+  const [isEnrolling, setIsEnrolling] = useState(false);
+  const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false);
   const { id } = useParams();
   const location = useLocation();
+
+  const {auth} = useContext(AuthContext);
 
   async function fetchStudentViewCourseDetails() {
     const response = await fetchStudentViewCourseDetailsService(
@@ -53,6 +57,75 @@ function StudentViewCourseDetails() {
     console.log("getCurrentVideoInfo", getCurrentVideoInfo);
     setDisplayCurrentVideoPreview(getCurrentVideoInfo?.videoUrl);
   }
+ 
+   async function checkEnrollmentStatus() {
+    try {
+      // You might want to create a separate service for this check
+      const response = await createEnrollmentService({
+        userId: auth.user._id,
+        courseId: studentViewCourseDetails._id,
+        checkOnly: true // Add this flag to your backend to just check status
+      });
+      
+      setIsAlreadyEnrolled(response?.message === "You are already enrolled in this course");
+    } catch (error) {
+      console.error("Error checking enrollment:", error);
+    }
+  }
+
+
+  async function handleEnrollNow() {
+    try {
+      if(!auth?.user?._id){
+        alert("Please login to enroll in this course");
+        return;
+      }
+
+       if (isAlreadyEnrolled) {
+        alert("You're already enrolled in this course!");
+        return;
+      }
+      setIsEnrolling(true);
+      const enrollmentPayload ={
+         userId: auth.user._id,
+      userName: auth.user.userName,
+      userEmail: auth.user.userEmail,
+      instructorId: studentViewCourseDetails?.instructorId,
+      instructorName: studentViewCourseDetails?.instructorName,
+      courseImage: studentViewCourseDetails?.image,
+      courseTitle: studentViewCourseDetails?.title,
+      courseId: studentViewCourseDetails?._id,
+      orderDate: new Date(),
+      }
+
+      const response = await createEnrollmentService(enrollmentPayload);
+      if (response?.message === "You are already enrolled in this course") {
+          alert("You're already enrolled in this course!");
+      }
+     if (response?.success) {
+        
+          // Optionally, redirect to course details or do nothing
+          sessionStorage.setItem(
+            "currentEnrollmentId",
+            JSON.stringify(response?.data?.enrollmentId)
+          );
+          window.location.href = "/student-courses";
+        
+      } else {
+        alert("Enrollment failed: " + (response.message || "Please try again"));
+      }
+    } catch (error) {
+      console.log("error", error);
+      
+    }
+  }
+
+   useEffect(() => {
+    if (auth?.user?._id && studentViewCourseDetails?._id) {
+      checkEnrollmentStatus();
+    }
+  }, [auth, studentViewCourseDetails]);
+
 
   useEffect(() => {
     if (displayCurrentVideoPreview !== null) {
@@ -188,7 +261,22 @@ function StudentViewCourseDetails() {
                 </span>
               </div>
 
-              <Button className="w-full">Enroll Now</Button>
+              <Button 
+                onClick={handleEnrollNow} 
+                className="w-full"
+                disabled={isEnrolling || isAlreadyEnrolled}
+              >
+                {isEnrolling 
+                  ? "Enrolling..." 
+                  : isAlreadyEnrolled 
+                    ? "Already Enrolled" 
+                    : "Enroll Now"}
+              </Button>
+              {isAlreadyEnrolled && (
+                <div className="mt-2 text-sm text-red-600">
+                  You are already enrolled in this course.
+                </div>
+              )}
             </CardContent>
           </Card>
         </aside>

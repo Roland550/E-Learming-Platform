@@ -80,4 +80,10 @@ export async function fetchStudentViewCourseDetailsService(courseId){
   const {data} = await axiosInstance.get(`/student/course/get/details/${courseId}`)
   return data 
 }
+
+export async function createEnrollmentService(formData) {
+  const { data } = await axiosInstance.post(`/student/order/create`, formData);
+
+  return data;
+}
 export default registerService;
