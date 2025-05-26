@@ -105,8 +105,10 @@ const checkCourseEnrollendInfo = async (req, res) => {
      
     res.status(200).json({
       success: true,
-      message: "Course details fetched successfully!",
-      data: ifStudentEnrolledAlreadyCourse,
+      message: ifStudentEnrolledAlreadyCourse
+        ? "You are already enrolled in this course"
+        : "You are not enrolled in this course",
+      data: {isEnrolled: ifStudentEnrolledAlreadyCourse},
     });
   } catch (error) {
     console.error("Error fetching student courses:", error);

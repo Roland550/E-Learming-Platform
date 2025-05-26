@@ -41,6 +41,7 @@ function StudentViewCourseDetails() {
 
   const {auth} = useContext(AuthContext);
   const navigate = useNavigate();
+   const [courseDetails, setCourseDetails] = useState(null);
   async function fetchStudentViewCourseDetails() {
     const checkCourseEnrollInfo =  await checkCourseEnrollendInfoService(currentCourseId, auth?.user?._id);
 
@@ -130,6 +131,35 @@ function StudentViewCourseDetails() {
       
     }
   }
+
+useEffect(() => {
+  async function fetchDetails() {
+      setLoadingState(true);
+      // Check enrollment
+      const enrollInfo = await checkCourseEnrollendInfoService(id, auth?.user?._id);
+      if (enrollInfo?.success && enrollInfo?.data?.isEnrolled) {
+        // If enrolled, redirect to progress
+        window.location.replace(`/course-progress/${id}`);
+        return;
+      }
+      // Otherwise, fetch course details
+      const response = await fetchStudentViewCourseDetailsService(id);
+      if (response?.success) {
+        setCourseDetails(response.data);
+        setStudentViewCourseDetails(response.data);
+      }
+      setLoadingState(false);
+    }
+    if (id) {
+      setCurrentCourseId(id);
+      fetchDetails();
+    }
+    // Cleanup on unmount
+    return () => {
+      setCurrentCourseId(null);
+      setStudentViewCourseDetails(null);
+    };
+},[id, auth?.user?._id, setCurrentCourseId, setStudentViewCourseDetails, setLoadingState])
 
    useEffect(() => {
     if (auth?.user?._id && studentViewCourseDetails?._id) {

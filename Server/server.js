@@ -16,6 +16,7 @@ const instructorCourseRoutes = require('./routes/instructor-routes/course-routes
 const studentViewCourseRoutes = require('./routes/student-route/course-route')
 const studentOrderRoutes = require('./routes/student-route/order-routes')
 const studentCoursesRoutes = require('./routes/student-route/student-course-routes')
+const studentProgressCoursesRoutes = require('./routes/student-route/course-pogress-route')
 
 
 app.use(
@@ -42,6 +43,7 @@ app.use('/instructor/course', instructorCourseRoutes)
 app.use('/student/course', studentViewCourseRoutes)
 app.use('/student/order', studentOrderRoutes)
 app.use('/student/taken-courses', studentCoursesRoutes)
+app.use('/student/course-progress', studentProgressCoursesRoutes)
 
 //handling global error
 app.use((err, req, res, next) => {

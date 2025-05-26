@@ -90,13 +90,12 @@ function StudentViewCoursePage() {
       getCurrentCourseId,
       auth?.user?._id
     );
-    
-    if (response?.success) {
-      if (response?.data?.isEnrolled) {
-        navigate(`/course-progress/${getCurrentCourseId}`);
-      } else {
-        navigate(`/course/details/${getCurrentCourseId}`);
-      }
+
+    if (response?.success && response?.data && response?.data?.isEnrolled=== true) {
+      navigate(`/course-progress/${getCurrentCourseId}`);
+    } else {
+      // Always navigate to course details if not enrolled or error
+      navigate(`/course/details/${getCurrentCourseId}`);
     }
   }
 

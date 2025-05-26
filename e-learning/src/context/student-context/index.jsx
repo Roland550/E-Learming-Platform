@@ -8,6 +8,7 @@ export default function StudentProvider({ children }) {
   const [studentViewCourseDetails, setStudentViewCourseDetails] = useState(null);
   const [currentCourseId, setCurrentCourseId] = useState(null);
   const [studentTakenCourseList, setStudentTakenCourseList] = useState([]);
+  const [studentCurrentCourseProgress, setStudentCurrentCourseProgress] = useState({});
 
   return (
     <StudentContex.Provider
@@ -22,6 +23,8 @@ export default function StudentProvider({ children }) {
         setCurrentCourseId,
         studentTakenCourseList,
         setStudentTakenCourseList,
+        studentCurrentCourseProgress,
+        setStudentCurrentCourseProgress,
       }}
     >
       {children}
