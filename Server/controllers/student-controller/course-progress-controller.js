@@ -67,7 +67,7 @@ const getCurrentCourseProgress = async (req, res) => {
           courseDetails: course,
           progress: [],
           isEnrolled: true,
-          completed: true,
+        //   completed: true,
         },
       });
     }
