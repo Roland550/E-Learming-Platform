@@ -13,12 +13,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import VideoPlayer from "@/components/video-player";
 import { AuthContext } from "@/context/auth-context";
 import { StudentContex } from "@/context/student-context";
-import { createEnrollmentService, fetchStudentViewCourseDetailsService } from "@/service";
+import { checkCourseEnrollendInfoService, createEnrollmentService, fetchStudentViewCourseDetailsService } from "@/service";
 
 import { CheckCircle, Globe, Lock, PlayCircle } from "lucide-react";
 
 import { useContext, useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import {  useLocation, useNavigate, useParams } from "react-router-dom";
 
 function StudentViewCourseDetails() {
   const {
@@ -35,20 +35,31 @@ function StudentViewCourseDetails() {
   const [showPreviewDislog, setShowPreviewDislog] = useState(false);
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false);
+ 
   const { id } = useParams();
   const location = useLocation();
 
   const {auth} = useContext(AuthContext);
-
+  const navigate = useNavigate();
   async function fetchStudentViewCourseDetails() {
+    const checkCourseEnrollInfo =  await checkCourseEnrollendInfoService(currentCourseId, auth?.user?._id);
+
+    if(checkCourseEnrollInfo?.success && checkCourseEnrollInfo?.data){
+      navigate(`/course-progress/${currentCourseId}`);
+      return;
+    }
+    
     const response = await fetchStudentViewCourseDetailsService(
       currentCourseId
     );
 
     if (response?.success) {
       setStudentViewCourseDetails(response?.data);
+      
+      
       setLoadingState(false);
     } else {
+     
       setLoadingState(false);
     }
   }
@@ -155,6 +166,8 @@ function StudentViewCourseDetails() {
   }, [location.pathname]);
 
   if (loadingState) return <Skeleton />;
+
+ 
 
   const getIndexOfFreePreview =
     studentViewCourseDetails !== null

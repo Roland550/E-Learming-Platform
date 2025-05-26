@@ -80,12 +80,13 @@ const createOrder = async (req, res) => {
       );
       res.status(200).json({
         success: true,
-        message: "Enrolled in course successfully",
+        message: "Course updated successfully",
         data: {
             enrollmentId: savedOrder._id,
             courseId: courseId,
             courseTitle: courseTitle,
             courseImage: courseImage,
+            instructorName: instructorName,
         }
       });
 

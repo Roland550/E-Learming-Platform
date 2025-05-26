@@ -10,7 +10,7 @@ const StudentCourseSchema = new mongoose.Schema({
             courseImage: String,
            
             courseInstructorId: String,
-            courseInstructorImage: String,
+            instruct0rName: String,
             dateOfPurchase: Date,
             
         }

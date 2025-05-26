@@ -1,4 +1,5 @@
 const Course = require("../../models/Course");
+const StudentCourse = require("../../models/StudentCourses");
 
 const getAllStudentViewCourses = async (req, res) => {
   try {
@@ -78,6 +79,7 @@ const getAllStudentViewCourseDetails = async (req, res) => {
       success: true,
       message: "Course details fetched successfully!",
       data: courseDetails,
+      
     });
   } catch (error) {
     console.error("Error fetching student courses:", error);
@@ -88,7 +90,36 @@ const getAllStudentViewCourseDetails = async (req, res) => {
   }
 };
 
+const checkCourseEnrollendInfo = async (req, res) => {
+  try {
+    const { id, studentId } = req.params;
+    const studentCourse = await StudentCourse.findOne({
+      userId: studentId,
+    });
+       
+    let ifStudentEnrolledAlreadyCourse = false;
+     if (studentCourse && Array.isArray(studentCourse.courses)) {
+      ifStudentEnrolledAlreadyCourse =
+        studentCourse.courses.findIndex(item => item.courseId === id) > -1;
+    }
+     
+    res.status(200).json({
+      success: true,
+      message: "Course details fetched successfully!",
+      data: ifStudentEnrolledAlreadyCourse,
+    });
+  } catch (error) {
+    console.error("Error fetching student courses:", error);
+    res.status(500).json({
+      success: false,
+      message: "Some error occured!",
+    });
+    
+  }
+}
+
 module.exports = {
   getAllStudentViewCourses,
   getAllStudentViewCourseDetails,
+  checkCourseEnrollendInfo
 };

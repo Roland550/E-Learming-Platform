@@ -80,9 +80,18 @@ export async function fetchStudentViewCourseDetailsService(courseId){
   const {data} = await axiosInstance.get(`/student/course/get/details/${courseId}`)
   return data 
 }
+export async function checkCourseEnrollendInfoService(courseId, studentId){
+  const {data} = await axiosInstance.get(`/student/course/enroll-info/${courseId}/${studentId}`)
+  return data 
+}
 
 export async function createEnrollmentService(formData) {
   const { data } = await axiosInstance.post(`/student/order/create`, formData);
+
+  return data;
+}
+export async function fecthStudentCourseByIdService(studentId){ 
+  const { data } = await axiosInstance.get(`/student/taken-courses/get/${studentId}`);
 
   return data;
 }
