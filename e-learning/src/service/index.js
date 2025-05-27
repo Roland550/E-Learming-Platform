@@ -100,5 +100,20 @@ export async function getCurrentCourseProgressService(userId, courseId){
   const {data} = await axiosInstance.get(`/student/course-progress/get/${userId}/${courseId}`)
   return data 
 }
+export async function markLectureAsViewSeervice(userId, courseId, lectureId){
+  const {data} = await axiosInstance.post(`/student/course-progress/mark-lecture-view`, {
+    userId,
+    courseId,
+    lectureId
+  })
+  return data 
+}
+export async function resetCourseProgressService( userId, courseId){
+  const {data} = await axiosInstance.post(`/student/course-progress/reset-progress`, {
+    userId,
+    courseId
+  })
+  return data 
+}
 
 export default registerService;

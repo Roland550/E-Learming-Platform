@@ -32,6 +32,9 @@ function VideoPlayer({
   const playerContainerRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
 
+
+  
+  
   function handlePlayAndPause() {
     setPlaying(!playing);
   }

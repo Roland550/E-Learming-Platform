@@ -72,6 +72,9 @@ function StudentViewCourseProgressPage() {
       }, 15000);
     }
   }, [showConfetti]);
+
+  console.log(currentLecture, "currentLectureProgress");
+  
   return (
     <div className="flex flex-col h-screen bg-[#1c1d1f] text-white">
       {showConfetti && <Confetti />}
@@ -109,6 +112,8 @@ function StudentViewCourseProgressPage() {
             width="100%"
             height="500px"
             url={currentLecture?.videoUrl}
+            onProgressUpdate={setCurrentLecture}
+            progressData={currentLecture}
           />
           <div className="p-2 bg-[#1c1d1f]">
             <h2 className="text-2xl font-bold mb-2">
