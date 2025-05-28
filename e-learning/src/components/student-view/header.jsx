@@ -7,10 +7,10 @@ import { AuthContext } from "@/context/auth-context";
 
 function StudentViewCommonHeader() {
   const navigate = useNavigate();
-  const { resetCredentials } = useContext(AuthContext);
+  const { resetCredential } = useContext(AuthContext);
 
   function handleLogout() {
-    resetCredentials();
+    resetCredential();
     sessionStorage.clear();
   }
 

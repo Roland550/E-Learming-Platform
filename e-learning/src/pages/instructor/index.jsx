@@ -32,7 +32,7 @@ function InstructorDashboardPage() {
       icon: BarChart,
       label: "Dashboard",
       value: "dashboard",
-      component: <InstructorDashboard />,
+      component: <InstructorDashboard listOfCourses={instructorCourseList}/>,
     },
     {
       icon: Book,
@@ -52,6 +52,9 @@ function InstructorDashboardPage() {
     resetCredential();
     sessionStorage.clear();
   };
+
+  console.log("instructorCourseList", instructorCourseList);
+  
 
   return (
     <div className="flex h-full min-h-screen bg-gray-100">
