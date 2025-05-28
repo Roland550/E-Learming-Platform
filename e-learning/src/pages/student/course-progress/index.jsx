@@ -15,6 +15,7 @@ import { StudentContex } from "@/context/student-context";
 import {
   getCurrentCourseProgressService,
   markLectureAsViewSeervice,
+  resetCourseProgressService,
 } from "@/service";
 import { Check, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import {  useContext, useEffect, useState } from "react";
@@ -93,6 +94,17 @@ function StudentViewCourseProgressPage() {
       if (response?.success) {
         fecthCurrentCourseProgress();
       }
+    }
+  }
+
+  async function handleRewatchCourse() {
+    const response = await resetCourseProgressService(auth?.user?._id, id);
+    if (response?.success) {
+      setCurrentLecture(null)
+      setShowConfetti(false);
+      setShowCourseCompleteDialog(false);
+      fecthCurrentCourseProgress();
+      
     }
   }
 
@@ -242,8 +254,8 @@ function StudentViewCourseProgressPage() {
             <DialogDescription className="flex flex-col gap-3 ">
               <Label>You have successfully completed the course</Label>
               <div className="flex flex-row gap-3">
-                <Button>My Courses Pages</Button>
-                <Button>Rewatch this course</Button>
+                <Button onClick={() => navigate("/student-courses")}>My Courses Pages</Button>
+                <Button onClick={handleRewatchCourse}>Rewatch this course</Button>
               </div>
             </DialogDescription>
           </DialogHeader>
