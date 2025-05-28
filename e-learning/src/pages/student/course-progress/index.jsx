@@ -1,3 +1,4 @@
+import React from 'react'
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,6 +21,7 @@ import {
 import { Check, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import {  useContext, useEffect, useState } from "react";
 import Confetti from "react-confetti";
+import {useWindowSize} from "@react-hook/window-size"
 import { useNavigate, useParams } from "react-router-dom";
 
 function StudentViewCourseProgressPage() {
@@ -34,6 +36,8 @@ function StudentViewCourseProgressPage() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
  
+
+  const {width, height} = useWindowSize()
 
   const { id } = useParams();
   async function fecthCurrentCourseProgress() {
@@ -130,7 +134,10 @@ function StudentViewCourseProgressPage() {
 
   return (
     <div className="flex flex-col h-screen bg-[#1c1d1f] text-white">
-      {showConfetti && <Confetti />}
+      {showConfetti && <Confetti 
+      width={width}
+      height={height}
+      />}
       <div className="flex items-center justify-between p-4 bg-[#1c1d1f] border-b border-gray-700">
         <div className="flex items-center space-x-4">
           <Button
@@ -248,7 +255,7 @@ function StudentViewCourseProgressPage() {
       </Dialog>
 
       <Dialog open={showCourseCompleteDialog}>
-        <DialogContent  className="sm:w-[425px]">
+        <DialogContent showOverlay={false} className="sm:w-[425px]">
           <DialogHeader>
             <DialogTitle>Congratulation!</DialogTitle>
             <DialogDescription className="flex flex-col gap-3 ">
