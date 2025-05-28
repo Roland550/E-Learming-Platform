@@ -12,9 +12,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import VideoPlayer from "@/components/video-player";
 import { AuthContext } from "@/context/auth-context";
 import { StudentContex } from "@/context/student-context";
-import { getCurrentCourseProgressService } from "@/service";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
+import {
+  getCurrentCourseProgressService,
+  markLectureAsViewSeervice,
+} from "@/service";
+import { Check, ChevronLeft, ChevronRight, Play } from "lucide-react";
+import {  useContext, useEffect, useState } from "react";
 import Confetti from "react-confetti";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -28,12 +31,13 @@ function StudentViewCourseProgressPage() {
   const [showCourseCompleteDialog, setShowCourseCompleteDialog] =
     useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const params = useParams();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+ 
 
-  const { id } = params;
+  const { id } = useParams();
   async function fecthCurrentCourseProgress() {
-    if (!auth?.user?._id || !id) return;
+    // if (!auth?.user?._id || !id) return;
+
     const response = await getCurrentCourseProgressService(auth?.user?._id, id);
 
     console.log("response", response);
@@ -43,8 +47,11 @@ function StudentViewCourseProgressPage() {
       } else {
         setStudentCurrentCourseProgress({
           courseDetails: response?.data?.courseDetails,
-          courseProgress: response?.data?.progress,
+          progress: response?.data?.progress,
+          // completed: response?.data?.completed,
+          // completionDate: response?.data?.completionDate
         });
+         // Show congratulation dialog if completed
         if (response?.data?.completed) {
           setCurrentLecture(response?.data?.courseDetails?.curriculum[0]);
           setShowCourseCompleteDialog(true);
@@ -55,8 +62,36 @@ function StudentViewCourseProgressPage() {
         if (response?.data?.progress.length === 0) {
           setCurrentLecture(response?.data?.courseDetails?.curriculum[0]);
         } else {
-          //later
+          console.log("login here");
+
+          //this logix help to get the first lecture progress and  finish the course should go to the next lecture
+          const lastIndexOfViewedAsTrue = response?.data?.progress?.reduceRight(
+            (acc, obj, index) => {
+              return acc === -1 && obj.viewed ? index : acc;
+            },
+            -1
+          );
+          setCurrentLecture(
+            response?.data?.courseDetails?.curriculum[
+              lastIndexOfViewedAsTrue + 1
+            ]
+          );
         }
+      }
+    }
+  }
+
+  async function updateCourseProgress() {
+    if (currentLecture) {
+      const response = await markLectureAsViewSeervice(
+        auth?.user?._id,
+        
+        studentCurrentCourseProgress?.courseDetails?._id,
+        currentLecture?._id
+      );
+
+      if (response?.success) {
+        fecthCurrentCourseProgress();
       }
     }
   }
@@ -64,6 +99,12 @@ function StudentViewCourseProgressPage() {
   useEffect(() => {
     fecthCurrentCourseProgress();
   }, [id]);
+
+  useEffect(() => {
+    if (currentLecture?.progressValue === 1) {
+      updateCourseProgress();
+    }
+  }, [currentLecture]);
 
   useEffect(() => {
     if (showConfetti) {
@@ -74,7 +115,7 @@ function StudentViewCourseProgressPage() {
   }, [showConfetti]);
 
   console.log(currentLecture, "currentLectureProgress");
-  
+
   return (
     <div className="flex flex-col h-screen bg-[#1c1d1f] text-white">
       {showConfetti && <Confetti />}
@@ -117,7 +158,7 @@ function StudentViewCourseProgressPage() {
           />
           <div className="p-2 bg-[#1c1d1f]">
             <h2 className="text-2xl font-bold mb-2">
-              {currentLecture?.title || "Course Progress"}
+              {currentLecture?.title }
             </h2>
           </div>
         </div>
@@ -151,6 +192,14 @@ function StudentViewCourseProgressPage() {
                           key={item._id}
                           className="flex items-center space-x-2 text-white text-sm font-bold cursor-pointer"
                         >
+                          {studentCurrentCourseProgress?.progress?.find(
+                            (progressItem) =>
+                              String(progressItem.lectureId) === String(item._id)
+                          )?.viewed ? (
+                            <Check className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <Play className="h-4 w-4 text-gray-400" />
+                          )}
                           <span>{item?.title}</span>
                         </div>
                       );
@@ -159,15 +208,15 @@ function StudentViewCourseProgressPage() {
                 </div>
               </ScrollArea>
             </TabsContent>
-            
+
             <TabsContent value="overview" className="flex-1 overflow-hidden">
               <ScrollArea className="h-full">
                 <div className="p-4 ">
                   <h2 className="text-xl font-bold mb-4">About this course</h2>
-                  
-                    <p className="text-gray-400">{studentCurrentCourseProgress?.courseDetails?.description}</p>
-                  
 
+                  <p className="text-gray-400">
+                    {studentCurrentCourseProgress?.courseDetails?.description}
+                  </p>
                 </div>
               </ScrollArea>
             </TabsContent>
@@ -187,7 +236,7 @@ function StudentViewCourseProgressPage() {
       </Dialog>
 
       <Dialog open={showCourseCompleteDialog}>
-        <DialogContent className="sm:w-[425px]">
+        <DialogContent  className="sm:w-[425px]">
           <DialogHeader>
             <DialogTitle>Congratulation!</DialogTitle>
             <DialogDescription className="flex flex-col gap-3 ">

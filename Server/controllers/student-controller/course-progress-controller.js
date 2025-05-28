@@ -7,6 +7,7 @@ const StudentCourse = require("../../models/StudentCourses");
 const markCurrentCourseAsView = async (req, res) => {
   try {
     const { userId, courseId, lectureId } = req.body;
+
     let progress = await CourseProgress.findOne({ userId, courseId });
     if (!progress) {
       progress = new CourseProgress({
@@ -22,8 +23,8 @@ const markCurrentCourseAsView = async (req, res) => {
       });
       await progress.save();
     } else {
-      const lectureProgress = progress.lectureProgress.find(
-        (item) => String(item.lectureId) === String(lectureId)
+      const lectureProgress = progress?.lectureProgress?.find(
+        (item) => item.lectureId === lectureId
       );
       if (lectureProgress) {
         lectureProgress.viewed = true;
@@ -47,7 +48,7 @@ const markCurrentCourseAsView = async (req, res) => {
     }
     // Check if all lectures are viewed or not
     const allLecturesViewed =
-      progress.lectureProgress === course.curriculum.length &&
+      progress.lectureProgress.length === course.curriculum.length &&
       progress.lectureProgress.every((item) => item.viewed);
     if (allLecturesViewed) {
       progress.completed = true;
@@ -100,8 +101,8 @@ const getCurrentCourseProgress = async (req, res) => {
     });
     if (
       !currentUserCourseProgress ||
-      !Array.isArray(currentUserCourseProgress.lectureProgress) ||
-      currentUserCourseProgress.lectureProgress.length === 0
+      // !Array.isArray(currentUserCourseProgress.lectureProgress) ||
+      currentUserCourseProgress?.lectureProgress?.length === 0
     ) {
       const course = await Course.findById(courseId);
       if (!course) {
